@@ -24,7 +24,8 @@ def log_usage(video_url, summary_type, status="success"):
         print(f"Usage logging failed: {e}")
 
 # Title and instructions
-st.title("YouTube Summarizer for Busy Folk")
+st.title("ClipNotes: AI Summarizer for YouTube Videos")
+st.write("When the video is too long or complex, use this tool to get the gist — fast")
 st.write("Paste a YouTube URL below and choose a summary style.")
 
 # Create form for inputs
