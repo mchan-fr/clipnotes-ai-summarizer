@@ -25,7 +25,7 @@ def log_usage(video_url, summary_type, status="success"):
 
 # Title and instructions
 st.title("ClipNotes: AI Summarizer for YouTube Videos")
-st.write("When the video is too long or complex, use this tool to get the gist — fast")
+st.write("When the video is too long or complex, use this tool to get the gist — fast.")
 st.write("Paste a YouTube URL below and choose a summary style.")
 
 # Create form for inputs
