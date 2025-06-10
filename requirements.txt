@@ -5,4 +5,3 @@ python-dotenv
 yt-dlp>=2025.6.9
 pydub
 whisper
-ffmpeg-python
