@@ -2,6 +2,7 @@ streamlit
 openai
 requests
 python-dotenv
-yt-dlp
+yt-dlp>=2025.6.9
 pydub
 whisper
+ffmpeg-python
