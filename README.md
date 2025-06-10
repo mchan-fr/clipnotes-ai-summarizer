@@ -34,4 +34,5 @@ streamlit run summarizer_app_github.py
 ```
 
 ### 👋 Personal Note
-This project was built by [Marcus Chan](https://www.linkedin.com/in/marcusdchan/) to explore the intersection of generative AI and applied editorial innovation. It reflects a learning journey toward hands-on GenAI fluency.
+
+This project was built by [Marcus Chan](https://www.linkedin.com/in/marcuschan/) to explore the intersection of generative AI and applied editorial innovation. It reflects an ongoing journey to blend storytelling expertise with growing AI fluency.
