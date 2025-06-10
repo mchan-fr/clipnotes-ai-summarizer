@@ -99,7 +99,10 @@ if submit_button and url:
 
     summary_prompt = {
         "basic": (
-            f"Summarize the following transcript:\n\n{transcript_text}"
+            "Summarize the following transcript in 5–7 clear sentences.\n\n"
+            "Make the summary vivid and informative — not just a restatement of the transcript. "
+            "Emphasize unique insights, meaningful shifts, or transformational ideas when possible.\n\n"
+            f"{transcript_text}"
         ),
         "bullets": (
             "Distill the transcript below into the 5–7 most important, non-redundant insights. "
@@ -121,16 +124,7 @@ if submit_button and url:
             "<span style='color:#00bcd4'><strong>[1:15]</strong></span> \"People don't just want to be heard — they want to feel safe while being heard.\"\n\n"
             "Now extract the quotes from the transcript:\n\n"
             + "\n".join([f"[{int(seg.start)//60}:{int(seg.start)%60:02d}] {seg.text}" for seg in segments])
-),
-        # "insights": (
-            # "Extract and explain 5–7 key lessons or strategic insights from the transcript below.\n\n"
-            # "Format each insight exactly like this:\n\n"
-            # "**Insight Title Goes Here**\n\n"
-            # "Insight explanation in 2–3 sentences.\n\n"
-            # "Use a double newline between the title and explanation, and between insights. "
-            # "Do not bold the explanation — only the title.\n\n"
-            # f"{transcript_text}"
-        # ),
+        ),
         "insights": (
             "Extract and explain 5–7 key lessons or strategic insights from the transcript below.\n\n"
             "Focus on ideas that would be valuable to someone looking to understand and apply the core takeaways.\n\n"
