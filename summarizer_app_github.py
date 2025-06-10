@@ -122,13 +122,26 @@ if submit_button and url:
             "Now extract the quotes from the transcript:\n\n"
             + "\n".join([f"[{int(seg.start)//60}:{int(seg.start)%60:02d}] {seg.text}" for seg in segments])
 ),
+        # "insights": (
+            # "Extract and explain 5–7 key lessons or strategic insights from the transcript below.\n\n"
+            # "Format each insight exactly like this:\n\n"
+            # "**Insight Title Goes Here**\n\n"
+            # "Insight explanation in 2–3 sentences.\n\n"
+            # "Use a double newline between the title and explanation, and between insights. "
+            # "Do not bold the explanation — only the title.\n\n"
+            # f"{transcript_text}"
+        # ),
         "insights": (
             "Extract and explain 5–7 key lessons or strategic insights from the transcript below.\n\n"
-            "Format each insight exactly like this:\n\n"
-            "**Insight Title Goes Here**\n\n"
-            "Insight explanation in 2–3 sentences.\n\n"
-            "Use a double newline between the title and explanation, and between insights. "
-            "Do not bold the explanation — only the title.\n\n"
+            "Focus on ideas that would be valuable to someone looking to understand and apply the core takeaways.\n\n"
+            "Each insight should:\n"
+            "- Have a short, descriptive, punchy title.\n"
+            "- Include a 2–3 sentence explanation that expands on the idea and why it matters.\n\n"
+            "Use the following formatting:\n"
+            "<p><span style='color:#1ecbe1; font-weight:bold;'>Insight Title Goes Here</span></p>\n"
+            "<p>Insight explanation goes here in 2–3 sentences.</p>\n\n"
+            "Use a double newline between each full insight block.\n\n"
+            "Now extract the insights from the transcript:\n\n"
             f"{transcript_text}"
         ),
         "newbie": (
