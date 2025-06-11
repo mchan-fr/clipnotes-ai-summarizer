@@ -25,13 +25,54 @@ Choose from five formats to suit your needs:
 - `yt-dlp` for audio extraction from YouTube  
 - `streamlit` for the user interface
 
-### 💻 Local Setup
-1. Clone this repo.
-2. Create a `.env` file in the root of the project:
-3. Run the app:
+### 🛠️ How to Run Locally (for macOS/Linux/Windows)
+
+Follow these steps to clone and run the app locally:
+
+1. Clone the repo
+
+```bash
+git clone https://github.com/mchan-fr/clipnotes-ai-summarizer.git
+cd clipnotes-ai-summarizer
+```
+
+2. Create a virtual environment and activate it
+
+- **macOS/Linux**:
+
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
+
+- **Windows**:
+
+```bash
+python -m venv venv
+venv\Scripts\activate
+```
+
+3. Install dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+4. Add your OpenAI API key
+
+Open the `.env` file included in the repo and replace the placeholder with your actual API key:
+
+```env
+OPENAI_API_KEY=your_actual_api_key_here
+```
+
+5. Run the app
+
 ```bash
 streamlit run summarizer_app_github.py
 ```
+
+The app will open in your default browser.
 
 ### 👋 Personal Note
 This project was built by [Marcus Chan](https://www.linkedin.com/in/marcuslowchan/) to explore the intersection of generative AI and applied editorial innovation. It reflects an ongoing journey to blend storytelling expertise with growing AI fluency.
