@@ -26,6 +26,7 @@ def log_usage(video_url, summary_type, status="success"):
 # Title and instructions
 st.title("ClipNotes: AI Summarizer for YouTube Videos")
 st.write("When the video is too long or complex, use this tool to get the gist — fast.")
+st.write("This AI summarizer is ideal for lectures, interviews, podcasts or talks.")
 st.write("Paste a YouTube URL below, hit return, then choose a summary style and hit generate.")
 
 # Create form for inputs
@@ -105,9 +106,9 @@ if submit_button and url:
             f"{transcript_text}"
         ),
         "bullets": (
-            "Distill the transcript below into the 5–7 most important, non-redundant insights. "
-            "Avoid restating general ideas — instead, capture only the most essential takeaways "
-            "that would be valuable for someone skimming for key points.\n\n"
+            "Distill the transcript below into 5–7 of the most important and non-redundant insights.\n\n"
+            "Avoid vague or generic observations — instead, capture only the most concrete, actionable takeaways "
+            "that would be valuable to someone skimming for meaning and relevance.\n\n"
             f"{transcript_text}"
         ),
         "quotes": (
