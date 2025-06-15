@@ -25,10 +25,16 @@ def log_usage(video_url, summary_type, status="success"):
 
 # Title and instructions
 st.title("ClipNotes: AI Summarizer for YouTube Videos")
-st.write("When the video is too long or complex, use this tool to get the gist — fast.")
+st.write("When you don't have time to watch that half-hour video, use this tool to get the gist — fast.")
 st.write("This AI summarizer is ideal for lectures, interviews, podcasts or talks.")
 st.write("Paste a YouTube URL below, hit return, then choose a summary style and hit generate.")
-st.write("(Give it a minute to run.)")
+st.markdown("""
+### Notes on usage:
+- ✅ Use standard YouTube videos *(Shorts may not work)*
+- ❌ Don't input music videos or similar that may have DRM locks
+- ⚠️ Videos longer than 30 minutes may fail
+- ℹ️ Currently supports English audio only
+""")
 
 # Create form for inputs
 with st.form(key='input_form'):
