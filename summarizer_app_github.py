@@ -71,6 +71,22 @@ if submit_button and url:
     try:
         subprocess.run(command, check=True)
         st.success("Audio downloaded successfully.")
+
+        # Compress audio for Whisper API (mono, 16kHz)
+        st.write("Compressing audio for transcription...")
+        compressed_filename = f"compressed_{uuid.uuid4().hex}.mp3"
+        ffmpeg_command = [
+            'ffmpeg', '-i', audio_filename,
+            '-ar', '16000',  # Set sample rate to 16kHz
+            '-ac', '1',       # Set to mono
+            compressed_filename
+        ]
+        try:
+            subprocess.run(ffmpeg_command, check=True)
+            st.success("Audio compressed successfully.")
+        except Exception as e:
+            st.error(f"Error during compression: {e}")
+            st.stop()
     except Exception as e:
         st.error(f"Error downloading audio: {e}")
         st.stop()
@@ -78,7 +94,7 @@ if submit_button and url:
     # Transcribe
     st.write("Transcribing...")
     try:
-        with open(audio_filename, "rb") as f:
+        with open(compressed_filename, "rb") as f:
             transcript = client.audio.transcriptions.create(
                 model="whisper-1",
                 file=f,
