@@ -32,7 +32,7 @@ st.markdown("""
 ### Notes on usage:
 - ✅ Use standard YouTube videos *(Shorts may not work)*
 - ❌ Don't input music videos or similar that may have DRM locks
-- ⚠️ Videos longer than 30 minutes may fail
+- ⚠️ Videos longer than 20 minutes may fail
 - ℹ️ Currently supports English audio only
 """)
 
