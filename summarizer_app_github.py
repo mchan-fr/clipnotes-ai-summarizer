@@ -28,7 +28,7 @@ def log_usage(video_url, summary_type, status="success"):
 st.title("ClipNotes: AI Summarizer for YouTube Videos")
 st.write("When you don't have time to watch that 25-minute video, use this tool to get the gist — fast.")
 st.write("This AI summarizer is ideal for medium-length lectures, interviews, podcasts or talks (or any content where the primary content is someone speaking).")
-st.write("Paste a YouTube URL below, hit return, then choose a summary style and hit generate. If anything in the results catches your eye, search for it in the transcript below. ")
+st.write("Paste a YouTube URL below, hit return, then choose a summary style and hit generate. Allow a minute or two for it to run. If anything in the results catches your eye, search for it in the transcript below. ")
 st.markdown("""
 ### Notes on usage:
 - ✅ Use standard YouTube videos *(Shorts may not work)*
