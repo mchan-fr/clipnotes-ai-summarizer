@@ -61,9 +61,9 @@ if submit_button and url:
     audio_filename = f"downloaded_{uuid.uuid4().hex}.mp3"
     command = [
         'yt-dlp',
-        '-f', 'bestaudio',
-        '--extract-audio',
+        '-x',
         '--audio-format', 'mp3',
+        '--audio-quality', '0',
         '--output', audio_filename,
         url
     ]
