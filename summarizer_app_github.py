@@ -3,6 +3,7 @@ import subprocess
 import uuid
 from openai import OpenAI
 import os
+import math
 from dotenv import load_dotenv
 import requests
 from datetime import datetime
@@ -179,9 +180,9 @@ if submit_button and url:
         }
         temperature = temperature_by_style.get(selected_type, 0.7)
 
-        # Optional: Length check to avoid exceeding token limit
-        max_token_limit = 7000  # conservative buffer
-        if len(transcript_text.split()) > max_token_limit:
+        # Estimate token count (4 tokens per word as a conservative approximation)
+        estimated_tokens = math.ceil(len(transcript_text.split()) * 4)
+        if estimated_tokens + 900 > 8192:
             st.error("Transcript is too long for summarization. Please try a shorter video (25 minutes or less).")
             st.stop()
 
