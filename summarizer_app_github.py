@@ -32,7 +32,7 @@ st.markdown("""
 ### Notes on usage:
 - ✅ Use standard YouTube videos *(Shorts may not work)*
 - ❌ Don't input music videos or similar that may have DRM locks
-- ⚠️ Videos longer than 20 minutes may fail
+- ⚠️ Videos longer than 28 minutes may fail to summarize due to token limits. For best results, keep video length under 25 minutes
 - ℹ️ Currently supports English audio only
 """)
 
@@ -179,6 +179,13 @@ if submit_button and url:
         }
         temperature = temperature_by_style.get(selected_type, 0.7)
 
+        # Optional: Length check to avoid exceeding token limit
+        max_token_limit = 7000  # conservative buffer
+        if len(transcript_text.split()) > max_token_limit:
+            st.error("Transcript is too long for summarization. Please try a shorter video (25 minutes or less).")
+            st.stop()
+
+        # Proceed with summary generation
         response = client.chat.completions.create(
             model="gpt-4",
             messages=[{"role": "user", "content": summary_prompt[selected_type]}],
