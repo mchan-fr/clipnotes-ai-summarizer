@@ -1,29 +1,49 @@
-# ClipNotes: AI Summarizer for YouTube Videos
+### 🎬 ClipNotes: AI Summarizer for YouTube Videos
 
-A lightweight Streamlit app that uses OpenAI’s Whisper and GPT-4 to generate a variety of summaries for YouTube videos. When the video is too long or complex, use ClipNotes to get the gist — fast.
+A lightweight Streamlit app that turns 25-minute YouTube videos into quick, high-value summaries using OpenAI’s Whisper and GPT-4.
 
-Ideal for lectures, interviews, podcasts, or talks — especially when the topic is dense or nuanced.
+ClipNotes is ideal for medium-length interviews, lectures, podcasts, or any spoken-word video you don’t have time to watch in full. Just paste a link, choose a summary format, and get the gist — fast.
 
-### 🔍 Summary Styles
-Choose from five formats to suit your needs:
+---
 
-- **Basic** — a summary in 5 or so sentences  
+### 📝 Summary Formats
+
+Choose from five distinct summary styles:
+
+- **Basic** — a short 5–7 sentence recap  
 - **Bullets** — 5–10 key points  
-- **Quotes** — 5–10 compelling quotes with timestamps  
-- **Insights** — strategic takeaways with brief explanations  
-- **Newbie** — explains the core ideas as if you're new to the topic
+- **Quotes** — timestamped excerpts (5–10 strong lines)  
+- **Insights** — strategic takeaways with explanations  
+- **Newbie** — simplified breakdowns for curious beginners
+
+---
 
 ### ✅ Use Cases
-- Save time by skimming key points instead of watching the entire video  
-- Extract quotes or highlights for articles, newsletters, or research  
-- Understand complex topics in simplified language  
-- Capture takeaways for strategic or editorial decision-making
+
+- Skim content before watching or sharing  
+- Extract key moments for newsletters or recaps  
+- Get simplified explanations of complex topics  
+- Highlight strategic lessons from expert interviews
+
+---
+
+### 🚀 What’s New (v1.1)
+
+- ✅ Audio compression added to support longer videos  
+- ✅ Token length safeguards to avoid GPT-4 errors  
+- ✅ Clearer error messages for failed downloads/transcripts  
+- ✅ UI update with usage notes and styling polish  
+- ✅ Works on videos up to ~25 minutes (token safe zone)
+
+---
 
 ### 🧠 Powered By
-- `openai.Whisper` for transcription  
-- `gpt-4` for summary generation  
-- `yt-dlp` for audio extraction from YouTube  
-- `streamlit` for the user interface
+
+- [`Whisper`](https://platform.openai.com/docs/guides/speech-to-text) for transcription  
+- [`gpt-4`](https://platform.openai.com/docs/guides/gpt) for summarization  
+- [`yt-dlp`](https://github.com/yt-dlp/yt-dlp) for YouTube audio extraction  
+- [`ffmpeg`](https://ffmpeg.org/) for audio compression  
+- [`streamlit`](https://streamlit.io/) for the frontend
 
 ### 🛠️ How to Run Locally (for macOS/Linux/Windows)
 
@@ -73,6 +93,11 @@ streamlit run summarizer_app_github.py
 ```
 
 The app will open in your default browser.
+
+### ⚠️ Limitations
+	•	Videos longer than 25 minutes may exceed GPT-4’s token limit
+	•	English audio only
+	•	YouTube Shorts or DRM-restricted videos may not work
 
 ### 👋 Personal Note
 This project was built by [Marcus Chan](https://www.linkedin.com/in/marcuslowchan/) to explore the intersection of generative AI and applied editorial innovation. It reflects an ongoing journey to blend storytelling expertise with growing AI fluency.
