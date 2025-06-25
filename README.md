@@ -100,4 +100,4 @@ The app will open in your default browser.
 	•	YouTube Shorts or DRM-restricted videos may not work
 
 ### 👋 Personal Note
-This project was built by [Marcus Chan](https://www.linkedin.com/in/marcuslowchan/) to explore the intersection of generative AI and applied editorial innovation. It reflects an ongoing journey to blend storytelling expertise with growing AI fluency.
+This project was built by [Marcus Chan](https://www.linkedin.com/in/marcuslowchan/) — editorial leader turned GenAI builder — as part of an ongoing journey to fuse content strategy with practical, AI-powered tools.
