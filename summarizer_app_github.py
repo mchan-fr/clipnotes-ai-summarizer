@@ -12,7 +12,7 @@ from transformers import GPT2TokenizerFast
 from pathlib import Path
 import hashlib
 
-# Load environment variables
+# Load environment variables test
 load_dotenv(dotenv_path=Path(__file__).parent.parent / "env_file" / ".env")
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
