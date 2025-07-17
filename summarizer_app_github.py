@@ -81,12 +81,18 @@ st.markdown(
 )
 
 st.markdown(
-    "<span style='color:#FF0000'><strong>The problem:</strong></span> There just aren’t enough hours in the day to watch all of these videos.",
+    """
+    <h3 style='margin-bottom: 0.2em; font-weight: 700;'>The problem</h3>
+    <p style='margin-top: 0;'>There just aren’t enough hours in the day to watch all of these videos. And so it's a missed opportunity to gain key insights from in-depth talks that aren't covered in the media.</p>
+    """,
     unsafe_allow_html=True,
 )
 
 st.markdown(
-    "<span style='color:#FDD835'><strong>A solution:</strong></span> ClipNotes summarizes the main points of a video in as little as one-tenth the time it would take to watch it. This AI tool is ideal for lectures, interviews, talks or any video centered around someone speaking (note: the fewer people talking the better, since the tool doesn’t differentiate between voices).",
+    """
+    <h3 style='margin-bottom: 0.2em; font-weight: 700;'>A solution</h3>
+    <p style='margin-top: 0;'>ClipNotes summarizes the main points of a video in as little as one-tenth the time it would take to watch it. This AI tool is ideal for lectures, interviews, talks or any video centered around someone speaking (note: the fewer people talking the better, since the tool doesn’t differentiate between voices).</p>
+    """,
     unsafe_allow_html=True,
 )
 
