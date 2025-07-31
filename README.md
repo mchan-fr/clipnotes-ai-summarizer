@@ -88,11 +88,11 @@ OPENAI_API_KEY=your_actual_api_key_here
 
 - For Streamlit Cloud, go to your app → Settings → Secrets, and add:
 
-```bash
-OPENAI_API_KEY = your_actual_api_key_here
+```toml
+OPENAI_API_KEY = "your_actual_api_key_here"
 ```
 
-The app will automatically detect the correct environment and use the appropriate API key. No code changes needed.
+The app automatically detects the environment and uses the appropriate key. No code changes needed.
 
 5. Run the app
 
