@@ -111,7 +111,7 @@ st.markdown(
     <p style='margin-top: 0;'>Paste a YouTube URL below, pick a summary style, select a processing speed (or leave it on the default) and hit generate. Run time will largely depend on how long the video is (I’ve had a 20-minute video take 2 minutes to process, while a 2-hour video took 20 minutes; your mileage may vary). Also:</p>
 
     <ul style='margin-top: 0.5em;'>
-        <li>✅&nbsp;&nbsp;Use standard YouTube videos <em>(Shorts may not work)</em></li>
+        <li>✅&nbsp;&nbsp;Use standard YouTube videos (Shorts may not work)</li>
         <li>❌&nbsp;&nbsp;Don't input music videos or similar that may have DRM locks</li>
         <li>🔍&nbsp;&nbsp;For additional context or timestamps, search the transcript at the bottom</li>
         <li>🎭&nbsp;&nbsp;Tool doesn’t differentiate between voices, which can affect results</li>
