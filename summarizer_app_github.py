@@ -13,8 +13,10 @@ from pathlib import Path
 import hashlib
 
 # Load environment variables test
-load_dotenv(dotenv_path=Path(__file__).parent.parent / "env_file" / ".env")
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+# Previous code: load_dotenv(dotenv_path=Path(__file__).parent.parent / "env_file" / ".env")
+# Previous code: client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
 # Initialize tokenizer
 tokenizer = GPT2TokenizerFast.from_pretrained("gpt2")
