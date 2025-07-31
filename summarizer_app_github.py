@@ -12,7 +12,18 @@ from transformers import GPT2TokenizerFast
 from pathlib import Path
 import hashlib
 
-client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+# Previous code: client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+
+# Try to load API key from Streamlit secrets
+try:
+    api_key = st.secrets["OPENAI_API_KEY"]
+except Exception:
+    # Fallback for local development
+    load_dotenv()
+    api_key = os.getenv("OPENAI_API_KEY")
+
+# Initialize OpenAI client
+client = OpenAI(api_key=api_key)
 
 # Initialize tokenizer
 tokenizer = GPT2TokenizerFast.from_pretrained("gpt2")
