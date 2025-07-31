@@ -78,7 +78,7 @@ venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-4. Add your OpenAI API key (ClipNotes supports both local and Streamlit Cloud environment)
+4. Add your OpenAI API key (ClipNotes supports both local and Streamlit Cloud environments)
 
 - For local use, create a .env file in the root directory (if it doesn’t exist) and add:
 
