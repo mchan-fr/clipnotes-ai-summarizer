@@ -81,7 +81,7 @@ st.markdown(
 st.markdown(
     """
     <h3 style='margin-bottom: 0.2em; font-weight: 700;'>The problem</h3>
-    <p style='margin-top: 0;'>There just aren’t enough hours in the day to watch all of these videos. And so it's a missed opportunity to gain key insights from in-depth talks that aren't covered in the media.</p>
+    <p style='margin-top: 0;'>There just aren’t enough hours in the day to watch all of these videos. And so it's a missed opportunity to gain key insights from in-depth talks.</p>
     """,
     unsafe_allow_html=True,
 )
