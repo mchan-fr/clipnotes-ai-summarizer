@@ -29,11 +29,10 @@ Choose from five distinct summary styles:
 
 ### 🚀 What’s New (v2)
 
-- ✅ Audio compression added to support longer videos  
-- ✅ Token length safeguards to avoid GPT-4 errors  
+- ✅ Chunking added to allow for videos of any length  
+- ✅ More detailed summaries in addition to overall summary  
 - ✅ Clearer error messages for failed downloads/transcripts  
 - ✅ UI update with usage notes and styling polish  
-- ✅ Chunking allows for videos of any length
 
 ---
 
