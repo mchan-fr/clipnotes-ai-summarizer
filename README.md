@@ -1,6 +1,6 @@
 ### 🎬 ClipNotes: AI Summarizer for YouTube Videos
 
-A lightweight Streamlit app that turns long YouTube videos into quick, high-value summaries using OpenAI’s Whisper and GPT-4.
+A lightweight Streamlit app that transforms long YouTube videos into clear, concise summaries — powered by OpenAI’s Whisper and GPT-4.
 
 ClipNotes is ideal for interviews, lectures, podcasts, or any spoken-word video you don’t have time to watch in full. Just paste a link, choose a summary format, and get the gist — fast.
 
@@ -13,24 +13,25 @@ Choose from five distinct summary styles:
 - **Basic** — a short 5–7 sentence recap  
 - **Bullets** — 5–10 key points  
 - **Quotes** — 5–10 compelling pull-quotes  
-- **Insights** — strategic takeaways with explanations  
+- **Insights** — strategic takeaways with brief explanations  
 - **Newbie** — simplified breakdowns for curious beginners
 
 ---
 
 ### ✅ Use Cases
 
-- Skim content before watching or sharing  
-- Extract key moments for newsletters or recaps  
+- Skim long content before meetings or research  
+- Extract key moments for newsletters or social posts  
 - Get simplified explanations of complex topics  
 - Highlight strategic lessons from expert interviews
+- Preview expert conversations before watching in full
 
 ---
 
 ### 🚀 What’s New (v2)
 
 - ✅ Chunking added to allow for videos of any length  
-- ✅ More detailed summaries in addition to overall summary  
+- ✅ Chunk-by-chunk detail added alongside overall summary  
 - ✅ Clearer error messages for failed downloads/transcripts  
 - ✅ UI update with usage notes and styling polish  
 
