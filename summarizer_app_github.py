@@ -74,7 +74,7 @@ st.markdown(
 )
 
 st.markdown(
-    "YouTube is the richest resource of long-form explainers, interviews and opining from thought leaders, experts and critics. And if you’re like me, you feel the need to stay on top of what these folks are saying.",
+    "YouTube is the richest resource of long-form explainers, interviews and prognostications from thought leaders, experts and critics. And if you’re like me, you feel the need to stay on top of what these folks are saying.",
     unsafe_allow_html=True,
 )
 
