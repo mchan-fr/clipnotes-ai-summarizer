@@ -103,6 +103,7 @@ st.markdown(
         <li>✅&nbsp;&nbsp;Use standard YouTube videos <em>(Shorts may not work)</em></li>
         <li>❌&nbsp;&nbsp;Don't input music videos or similar that may have DRM locks</li>
         <li>🔍&nbsp;&nbsp;For additional context or timestamps, search the transcript at the bottom</li>
+        <li>🎭&nbsp;&nbsp;Tool doesn’t differentiate between voices, which can affect results</li>
         <li>🛠️&nbsp;&nbsp;Currently supports English audio only</li>
     </ul>
     <div style='margin-bottom: 1.9em;'></div>
