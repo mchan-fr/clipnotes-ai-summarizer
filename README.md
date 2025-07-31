@@ -1,8 +1,8 @@
 ### 🎬 ClipNotes: AI Summarizer for YouTube Videos
 
-A lightweight Streamlit app that turns 25-minute YouTube videos into quick, high-value summaries using OpenAI’s Whisper and GPT-4.
+A lightweight Streamlit app that turns long YouTube videos into quick, high-value summaries using OpenAI’s Whisper and GPT-4.
 
-ClipNotes is ideal for medium-length interviews, lectures, podcasts, or any spoken-word video you don’t have time to watch in full. Just paste a link, choose a summary format, and get the gist — fast.
+ClipNotes is ideal for interviews, lectures, podcasts, or any spoken-word video you don’t have time to watch in full. Just paste a link, choose a summary format, and get the gist — fast.
 
 ---
 
@@ -12,7 +12,7 @@ Choose from five distinct summary styles:
 
 - **Basic** — a short 5–7 sentence recap  
 - **Bullets** — 5–10 key points  
-- **Quotes** — timestamped excerpts (5–10 strong lines)  
+- **Quotes** — 5–10 compelling pull-quotes  
 - **Insights** — strategic takeaways with explanations  
 - **Newbie** — simplified breakdowns for curious beginners
 
@@ -27,13 +27,13 @@ Choose from five distinct summary styles:
 
 ---
 
-### 🚀 What’s New (v1.1)
+### 🚀 What’s New (v2)
 
 - ✅ Audio compression added to support longer videos  
 - ✅ Token length safeguards to avoid GPT-4 errors  
 - ✅ Clearer error messages for failed downloads/transcripts  
 - ✅ UI update with usage notes and styling polish  
-- ✅ Works on videos up to ~25 minutes (token safe zone)
+- ✅ Chunking allows for videos of any length
 
 ---
 
@@ -95,7 +95,7 @@ streamlit run summarizer_app_github.py
 The app will open in your default browser.
 
 ### ⚠️ Limitations
-	•	Videos longer than 25 minutes may exceed GPT-4’s token limit
+	•	Tool doesn't distinguish between voices, so quality of results could be affected by number of speakers
 	•	English audio only
 	•	YouTube Shorts or DRM-restricted videos may not work
 
