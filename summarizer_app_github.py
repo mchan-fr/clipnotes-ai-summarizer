@@ -42,7 +42,7 @@ def download_audio(url, output_filename):
     Download audio from YouTube URL with multiple fallback strategies
     """
     commands_to_try = [
-        # Original command with cookies and user agent
+        # Strategy 1: Use cookies and extractor args to bypass restrictions
         [
             "yt-dlp",
             "-x",
@@ -52,25 +52,98 @@ def download_audio(url, output_filename):
             "0",
             "--user-agent",
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            "--extractor-args",
+            "youtube:player_client=android",
+            "--no-check-certificate",
             "--output",
             output_filename,
             url,
         ],
-        # Fallback: without audio quality specification
+        # Strategy 2: Use mobile client
         [
             "yt-dlp",
             "-x",
             "--audio-format",
             "mp3",
+            "--extractor-args",
+            "youtube:player_client=android_music",
             "--user-agent",
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+            "com.google.android.youtube/17.31.35 (Linux; U; Android 11) gzip",
             "--output",
             output_filename,
             url,
         ],
-        # Fallback: use wav format
-        ["yt-dlp", "-x", "--audio-format", "wav", "--output", output_filename, url],
-        # Fallback: basic command
+        # Strategy 3: Use iOS client
+        [
+            "yt-dlp",
+            "-x",
+            "--audio-format",
+            "mp3",
+            "--extractor-args",
+            "youtube:player_client=ios",
+            "--user-agent",
+            "com.google.ios.youtube/17.33.2 (iPhone14,3; U; CPU iOS 15_6 like Mac OS X)",
+            "--output",
+            output_filename,
+            url,
+        ],
+        # Strategy 4: Use web client with different approach
+        [
+            "yt-dlp",
+            "-x",
+            "--audio-format",
+            "mp3",
+            "--extractor-args",
+            "youtube:player_client=web",
+            "--user-agent",
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+            "--no-check-certificate",
+            "--output",
+            output_filename,
+            url,
+        ],
+        # Strategy 5: Force IPv4 (sometimes helps with network issues)
+        [
+            "yt-dlp",
+            "-x",
+            "--audio-format",
+            "mp3",
+            "--force-ipv4",
+            "--extractor-args",
+            "youtube:player_client=android",
+            "--output",
+            output_filename,
+            url,
+        ],
+        # Strategy 6: Lower quality audio to reduce blocking
+        [
+            "yt-dlp",
+            "-x",
+            "--audio-format",
+            "mp3",
+            "--audio-quality",
+            "9",  # Lower quality
+            "--format",
+            "worst[ext=mp4]",
+            "--output",
+            output_filename,
+            url,
+        ],
+        # Strategy 7: Try with age gate bypass
+        [
+            "yt-dlp",
+            "-x",
+            "--audio-format",
+            "mp3",
+            "--extractor-args",
+            "youtube:player_client=android,skip=dash",
+            "--age-limit",
+            "99",
+            "--output",
+            output_filename,
+            url,
+        ],
+        # Strategy 8: Basic fallback
         ["yt-dlp", "-x", "--output", output_filename, url],
     ]
 
