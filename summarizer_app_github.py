@@ -77,28 +77,41 @@ def get_youtube_transcript(video_url):
         return None, "Could not extract video ID from URL"
 
     try:
-        # Try to get transcript in English first, then any available language
-        transcript_list = YouTubeTranscriptApi.list_transcripts(video_id)
-
-        # Try English first
+        # Method 1: Try to get transcript directly in English
         try:
-            transcript = transcript_list.find_transcript(["en"])
-            transcript_data = transcript.fetch()
+            transcript_data = YouTubeTranscriptApi.get_transcript(
+                video_id, languages=["en"]
+            )
         except:
-            # If English not available, get the first available transcript
+            # Method 2: Try auto-generated English transcript
             try:
-                transcript = transcript_list.find_generated_transcript(["en"])
-                transcript_data = transcript.fetch()
+                transcript_data = YouTubeTranscriptApi.get_transcript(
+                    video_id, languages=["en-US", "en-GB", "en"]
+                )
             except:
-                # Get any available transcript
-                available_transcripts = list(transcript_list)
-                if not available_transcripts:
-                    return None, "No transcripts available for this video"
-                transcript_data = available_transcripts[0].fetch()
+                # Method 3: Get any available transcript
+                try:
+                    # Get list of available transcripts
+                    transcript_list = YouTubeTranscriptApi.list_transcripts(video_id)
 
-        # Format the transcript
-        formatter = TextFormatter()
-        transcript_text = formatter.format_transcript(transcript_data)
+                    # Try to find any English transcript
+                    for transcript in transcript_list:
+                        if transcript.language_code.startswith("en"):
+                            transcript_data = transcript.fetch()
+                            break
+                    else:
+                        # If no English, get the first available
+                        first_transcript = next(iter(transcript_list))
+                        transcript_data = first_transcript.fetch()
+
+                except Exception as e:
+                    return None, f"No transcripts available: {str(e)}"
+
+        if not transcript_data:
+            return None, "No transcript data found"
+
+        # Format the transcript text
+        transcript_text = " ".join([item["text"] for item in transcript_data])
 
         # Create segments in a format similar to Whisper
         segments = []
