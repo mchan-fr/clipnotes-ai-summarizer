@@ -42,52 +42,44 @@ def download_audio(url, output_filename):
     Download audio from YouTube URL with multiple fallback strategies
     """
     commands_to_try = [
-        # Strategy 1: Use cookies and extractor args to bypass restrictions
+        # Strategy 1: Use latest working approach with tv_embedded client
         [
             "yt-dlp",
             "-x",
             "--audio-format",
             "mp3",
-            "--audio-quality",
-            "0",
-            "--user-agent",
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
             "--extractor-args",
-            "youtube:player_client=android",
+            "youtube:player_client=tv_embedded",
             "--no-check-certificate",
             "--output",
             output_filename,
             url,
         ],
-        # Strategy 2: Use mobile client
+        # Strategy 2: Use mediaconnect client (often bypasses restrictions)
         [
             "yt-dlp",
             "-x",
             "--audio-format",
             "mp3",
             "--extractor-args",
-            "youtube:player_client=android_music",
-            "--user-agent",
-            "com.google.android.youtube/17.31.35 (Linux; U; Android 11) gzip",
+            "youtube:player_client=mediaconnect",
             "--output",
             output_filename,
             url,
         ],
-        # Strategy 3: Use iOS client
+        # Strategy 3: Use web client with embed bypass
         [
             "yt-dlp",
             "-x",
             "--audio-format",
             "mp3",
             "--extractor-args",
-            "youtube:player_client=ios",
-            "--user-agent",
-            "com.google.ios.youtube/17.33.2 (iPhone14,3; U; CPU iOS 15_6 like Mac OS X)",
+            "youtube:player_client=web_embedded",
             "--output",
             output_filename,
             url,
         ],
-        # Strategy 4: Use web client with different approach
+        # Strategy 4: Try with cookies simulation
         [
             "yt-dlp",
             "-x",
@@ -95,61 +87,60 @@ def download_audio(url, output_filename):
             "mp3",
             "--extractor-args",
             "youtube:player_client=web",
+            "--add-header",
+            "Cookie: CONSENT=YES+cb",
             "--user-agent",
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-            "--no-check-certificate",
             "--output",
             output_filename,
             url,
         ],
-        # Strategy 5: Force IPv4 (sometimes helps with network issues)
-        [
-            "yt-dlp",
-            "-x",
-            "--audio-format",
-            "mp3",
-            "--force-ipv4",
-            "--extractor-args",
-            "youtube:player_client=android",
-            "--output",
-            output_filename,
-            url,
-        ],
-        # Strategy 6: Lower quality audio to reduce blocking
-        [
-            "yt-dlp",
-            "-x",
-            "--audio-format",
-            "mp3",
-            "--audio-quality",
-            "9",  # Lower quality
-            "--format",
-            "worst[ext=mp4]",
-            "--output",
-            output_filename,
-            url,
-        ],
-        # Strategy 7: Try with age gate bypass
+        # Strategy 5: Use android_testsuite (sometimes works)
         [
             "yt-dlp",
             "-x",
             "--audio-format",
             "mp3",
             "--extractor-args",
-            "youtube:player_client=android,skip=dash",
-            "--age-limit",
-            "99",
+            "youtube:player_client=android_testsuite",
             "--output",
             output_filename,
             url,
         ],
-        # Strategy 8: Basic fallback
-        ["yt-dlp", "-x", "--output", output_filename, url],
+        # Strategy 6: Try basic web with different user agent
+        [
+            "yt-dlp",
+            "-x",
+            "--audio-format",
+            "mp3",
+            "--user-agent",
+            "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            "--output",
+            output_filename,
+            url,
+        ],
+        # Strategy 7: Use mweb client (mobile web)
+        [
+            "yt-dlp",
+            "-x",
+            "--audio-format",
+            "mp3",
+            "--extractor-args",
+            "youtube:player_client=mweb",
+            "--output",
+            output_filename,
+            url,
+        ],
+        # Strategy 8: Last resort - basic command
+        ["yt-dlp", "-x", "--audio-format", "mp3", "--output", output_filename, url],
     ]
 
     for i, command in enumerate(commands_to_try):
         try:
             st.write(f"Attempting download method {i+1}/{len(commands_to_try)}...")
+            st.code(
+                " ".join(command), language="bash"
+            )  # Show the actual command being run
 
             # Run with timeout and capture output
             result = subprocess.run(
@@ -164,7 +155,11 @@ def download_audio(url, output_filename):
                 st.success(f"Audio downloaded successfully using method {i+1}")
                 return True
             else:
-                st.warning(f"Method {i+1} failed. Error: {result.stderr[:200]}...")
+                st.warning(f"Method {i+1} failed with return code {result.returncode}")
+                if result.stderr:
+                    st.text(f"STDERR: {result.stderr[:300]}...")
+                if result.stdout:
+                    st.text(f"STDOUT: {result.stdout[:300]}...")
 
         except subprocess.TimeoutExpired:
             st.error(
@@ -377,13 +372,32 @@ if submit_button and url:
             )
             st.markdown(
                 """
+            - **YouTube's enhanced anti-bot measures** (most common cause)
             - Video is age-restricted or region-blocked
             - Video has download restrictions
-            - yt-dlp needs updating: `pip install --upgrade yt-dlp`
+            - Your hosting platform's IP is blocked by YouTube
             - Network connectivity issues
-            - Video URL is invalid
+            
+            **Potential solutions:**
+            - Try a different video to test if the issue is video-specific
+            - Wait 30-60 minutes and try again (temporary IP blocking)
+            - Use a VPN if testing locally
+            - Consider using YouTube's official API for transcripts (limited availability)
             """
             )
+
+            # Offer alternative: YouTube API transcript extraction
+            st.info(
+                "💡 **Alternative:** Some videos have auto-generated captions that can be extracted without downloading audio."
+            )
+            if st.button("Try YouTube Transcript API (if available)"):
+                try:
+                    # This would require youtube-transcript-api package
+                    st.warning(
+                        "This feature requires the youtube-transcript-api package. Add it to requirements.txt to enable this fallback."
+                    )
+                except:
+                    pass
             log_usage(url, selected_type, status="download_failed")
             st.stop()
 
