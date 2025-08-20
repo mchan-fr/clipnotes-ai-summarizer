@@ -6,4 +6,3 @@ yt-dlp>=2024.12.13
 pydub
 whisper
 transformers
-youtube-transcript-api>=0.6.0
