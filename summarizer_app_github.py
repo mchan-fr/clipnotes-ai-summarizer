@@ -76,52 +76,59 @@ def get_youtube_transcript(video_url):
     if not video_id:
         return None, "Could not extract video ID from URL"
 
-    try:
-        # Method 1: Try to get transcript directly in English
+    # Try different language combinations
+    language_attempts = [
+        ["en"],  # English
+        ["en-US"],  # US English
+        ["en-GB"],  # UK English
+        ["en-CA"],  # Canadian English
+        ["en-AU"],  # Australian English
+        ["auto"],  # Auto-generated
+    ]
+
+    for languages in language_attempts:
         try:
+            st.write(f"Trying languages: {languages}")
             transcript_data = YouTubeTranscriptApi.get_transcript(
-                video_id, languages=["en"]
+                video_id, languages=languages
             )
-        except:
-            # Method 2: Try auto-generated English transcript
-            try:
-                transcript_data = YouTubeTranscriptApi.get_transcript(
-                    video_id, languages=["en-US", "en-GB", "en"]
+
+            if transcript_data:
+                # Format the transcript text
+                transcript_text = " ".join([item["text"] for item in transcript_data])
+
+                # Create segments in a format similar to Whisper
+                segments = []
+                for item in transcript_data:
+                    segments.append(
+                        {"start": item.get("start", 0), "text": item.get("text", "")}
+                    )
+
+                return {"text": transcript_text, "segments": segments}, None
+
+        except Exception as e:
+            st.write(f"Language {languages} failed: {str(e)}")
+            continue
+
+    # If all language attempts failed, try without specifying language
+    try:
+        st.write("Trying without language specification...")
+        transcript_data = YouTubeTranscriptApi.get_transcript(video_id)
+
+        if transcript_data:
+            transcript_text = " ".join([item["text"] for item in transcript_data])
+            segments = []
+            for item in transcript_data:
+                segments.append(
+                    {"start": item.get("start", 0), "text": item.get("text", "")}
                 )
-            except:
-                # Method 3: Get any available transcript
-                try:
-                    # Get list of available transcripts
-                    transcript_list = YouTubeTranscriptApi.list_transcripts(video_id)
 
-                    # Try to find any English transcript
-                    for transcript in transcript_list:
-                        if transcript.language_code.startswith("en"):
-                            transcript_data = transcript.fetch()
-                            break
-                    else:
-                        # If no English, get the first available
-                        first_transcript = next(iter(transcript_list))
-                        transcript_data = first_transcript.fetch()
-
-                except Exception as e:
-                    return None, f"No transcripts available: {str(e)}"
-
-        if not transcript_data:
-            return None, "No transcript data found"
-
-        # Format the transcript text
-        transcript_text = " ".join([item["text"] for item in transcript_data])
-
-        # Create segments in a format similar to Whisper
-        segments = []
-        for item in transcript_data:
-            segments.append({"start": item["start"], "text": item["text"]})
-
-        return {"text": transcript_text, "segments": segments}, None
+            return {"text": transcript_text, "segments": segments}, None
 
     except Exception as e:
-        return None, f"Transcript API error: {str(e)}"
+        return None, f"Final attempt failed: {str(e)}"
+
+    return None, "No transcripts found with any method"
 
 
 # Improved audio download function with better error handling
