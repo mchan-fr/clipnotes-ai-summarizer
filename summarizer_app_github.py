@@ -13,8 +13,16 @@ from pathlib import Path
 import hashlib
 import tempfile
 import shutil
+import re
 
-# Previous code: client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+# NEW: Import YouTube Transcript API
+try:
+    from youtube_transcript_api import YouTubeTranscriptApi
+    from youtube_transcript_api.formatters import TextFormatter
+
+    TRANSCRIPT_API_AVAILABLE = True
+except ImportError:
+    TRANSCRIPT_API_AVAILABLE = False
 
 # Try to load API key from Streamlit secrets
 try:
@@ -36,6 +44,73 @@ def url_hash(url):
     return hashlib.md5(url.encode()).hexdigest()
 
 
+# Extract video ID from YouTube URL
+def extract_video_id(url):
+    """Extract video ID from various YouTube URL formats"""
+    patterns = [
+        r"(?:v=|\/)([0-9A-Za-z_-]{11}).*",
+        r"(?:embed\/)([0-9A-Za-z_-]{11})",
+        r"(?:vi?\/)([0-9A-Za-z_-]{11})",
+        r"(?:youtu\.be\/)([0-9A-Za-z_-]{11})",
+    ]
+
+    for pattern in patterns:
+        match = re.search(pattern, url)
+        if match:
+            return match.group(1)
+    return None
+
+
+# NEW: YouTube Transcript API function
+def get_youtube_transcript(video_url):
+    """
+    Try to get transcript using YouTube's Transcript API
+    """
+    if not TRANSCRIPT_API_AVAILABLE:
+        return (
+            None,
+            "YouTube Transcript API not available. Add 'youtube-transcript-api' to requirements.txt",
+        )
+
+    video_id = extract_video_id(video_url)
+    if not video_id:
+        return None, "Could not extract video ID from URL"
+
+    try:
+        # Try to get transcript in English first, then any available language
+        transcript_list = YouTubeTranscriptApi.list_transcripts(video_id)
+
+        # Try English first
+        try:
+            transcript = transcript_list.find_transcript(["en"])
+            transcript_data = transcript.fetch()
+        except:
+            # If English not available, get the first available transcript
+            try:
+                transcript = transcript_list.find_generated_transcript(["en"])
+                transcript_data = transcript.fetch()
+            except:
+                # Get any available transcript
+                available_transcripts = list(transcript_list)
+                if not available_transcripts:
+                    return None, "No transcripts available for this video"
+                transcript_data = available_transcripts[0].fetch()
+
+        # Format the transcript
+        formatter = TextFormatter()
+        transcript_text = formatter.format_transcript(transcript_data)
+
+        # Create segments in a format similar to Whisper
+        segments = []
+        for item in transcript_data:
+            segments.append({"start": item["start"], "text": item["text"]})
+
+        return {"text": transcript_text, "segments": segments}, None
+
+    except Exception as e:
+        return None, f"Transcript API error: {str(e)}"
+
+
 # Improved audio download function with better error handling
 def download_audio(url, output_filename):
     """
@@ -55,19 +130,7 @@ def download_audio(url, output_filename):
             output_filename,
             url,
         ],
-        # Strategy 2: Use mediaconnect client (often bypasses restrictions)
-        [
-            "yt-dlp",
-            "-x",
-            "--audio-format",
-            "mp3",
-            "--extractor-args",
-            "youtube:player_client=mediaconnect",
-            "--output",
-            output_filename,
-            url,
-        ],
-        # Strategy 3: Use web client with embed bypass
+        # Strategy 2: Use web client with embed bypass
         [
             "yt-dlp",
             "-x",
@@ -79,35 +142,7 @@ def download_audio(url, output_filename):
             output_filename,
             url,
         ],
-        # Strategy 4: Try with cookies simulation
-        [
-            "yt-dlp",
-            "-x",
-            "--audio-format",
-            "mp3",
-            "--extractor-args",
-            "youtube:player_client=web",
-            "--add-header",
-            "Cookie: CONSENT=YES+cb",
-            "--user-agent",
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-            "--output",
-            output_filename,
-            url,
-        ],
-        # Strategy 5: Use android_testsuite (sometimes works)
-        [
-            "yt-dlp",
-            "-x",
-            "--audio-format",
-            "mp3",
-            "--extractor-args",
-            "youtube:player_client=android_testsuite",
-            "--output",
-            output_filename,
-            url,
-        ],
-        # Strategy 6: Try basic web with different user agent
+        # Strategy 3: Try basic web with different user agent
         [
             "yt-dlp",
             "-x",
@@ -119,28 +154,13 @@ def download_audio(url, output_filename):
             output_filename,
             url,
         ],
-        # Strategy 7: Use mweb client (mobile web)
-        [
-            "yt-dlp",
-            "-x",
-            "--audio-format",
-            "mp3",
-            "--extractor-args",
-            "youtube:player_client=mweb",
-            "--output",
-            output_filename,
-            url,
-        ],
-        # Strategy 8: Last resort - basic command
+        # Strategy 4: Last resort - basic command
         ["yt-dlp", "-x", "--audio-format", "mp3", "--output", output_filename, url],
     ]
 
     for i, command in enumerate(commands_to_try):
         try:
             st.write(f"Attempting download method {i+1}/{len(commands_to_try)}...")
-            st.code(
-                " ".join(command), language="bash"
-            )  # Show the actual command being run
 
             # Run with timeout and capture output
             result = subprocess.run(
@@ -148,7 +168,7 @@ def download_audio(url, output_filename):
                 check=False,
                 capture_output=True,
                 text=True,
-                timeout=300,  # 5 minute timeout
+                timeout=180,  # Reduced timeout
             )
 
             if result.returncode == 0:
@@ -156,15 +176,9 @@ def download_audio(url, output_filename):
                 return True
             else:
                 st.warning(f"Method {i+1} failed with return code {result.returncode}")
-                if result.stderr:
-                    st.text(f"STDERR: {result.stderr[:300]}...")
-                if result.stdout:
-                    st.text(f"STDOUT: {result.stdout[:300]}...")
 
         except subprocess.TimeoutExpired:
-            st.error(
-                "Download timed out (5 minutes). The video might be too long or connection is slow."
-            )
+            st.error("Download timed out")
         except subprocess.CalledProcessError as e:
             st.warning(f"Method {i+1} failed with error code {e.returncode}")
         except FileNotFoundError:
@@ -231,7 +245,7 @@ def compress_audio(input_file, output_file):
 
 
 # Logging function
-def log_usage(video_url, summary_type, status="success"):
+def log_usage(video_url, summary_type, status="success", method=""):
     try:
         requests.post(
             "https://webhook.site/42e8bf51-3e8b-4549-b251-21ceb38d2c7a",
@@ -240,6 +254,7 @@ def log_usage(video_url, summary_type, status="success"):
                 "video_url": video_url,
                 "summary_type": summary_type,
                 "status": status,
+                "method": method,
             },
         )
     except Exception as e:
@@ -304,7 +319,7 @@ st.markdown(
 st.markdown(
     """
     <h3 style='margin-bottom: 0.2em; font-weight: 700;'>How to use</h3>
-    <p style='margin-top: 0;'>Paste a YouTube URL below, pick a summary style, select a processing speed (or leave it on the default) and hit generate. Run time will largely depend on how long the video is (I've had a 20-minute video take 2 minutes to process, while a 2-hour video took 20 minutes; your mileage may vary). Also:</p>
+    <p style='margin-top: 0;'>Paste a YouTube URL below, pick a summary style, select a processing method and hit generate. The tool will first try to use YouTube's auto-generated captions (fastest), then fall back to audio download and transcription if needed. Also:</p>
 
     <ul style='margin-top: 0.5em;'>
         <li>✅&nbsp;&nbsp;Use standard YouTube videos (Shorts may not work)</li>
@@ -312,6 +327,7 @@ st.markdown(
         <li>🔍&nbsp;&nbsp;For additional context or timestamps, search the transcript at the bottom</li>
         <li>🎭&nbsp;&nbsp;Tool doesn't differentiate between voices, which can affect results</li>
         <li>🛠️&nbsp;&nbsp;Currently supports English audio only</li>
+        <li>⚡&nbsp;&nbsp;NEW: Auto-captions provide faster processing when available</li>
     </ul>
     <div style='margin-bottom: 1.9em;'></div>
     """,
@@ -334,14 +350,14 @@ with st.form(key="input_form"):
     )
     selected_type = label_to_key[selected_label]
 
-    summary_scope = st.radio(
-        "Choose a processing speed (for short videos — less than 15 minutes):",
+    processing_method = st.radio(
+        "Choose processing method:",
         [
-            "⚡ Quick (fast, but light context)",
-            "🐢 Less Quick (slower, but deeper context)",
+            "🚀 Auto-captions first (fastest, tries YouTube's built-in captions)",
+            "🎵 Audio download first (more accurate transcription)",
         ],
-        index=1,
-        horizontal=True,
+        index=0,
+        horizontal=False,
     )
 
     submit_button = st.form_submit_button(label="Generate Summary")
@@ -360,122 +376,181 @@ if submit_button and url:
         segments = st.session_state["transcript_segments"]
     else:
         st.success(f"Received URL: {url}")
-        st.write("Downloading audio...")
 
-        # Use temporary files to avoid conflicts
-        audio_filename = f"downloaded_{uuid.uuid4().hex}.%(ext)s"
+        transcript_text = None
+        segments = None
+        method_used = ""
 
-        # Try to download audio
-        if not download_audio(url, audio_filename):
-            st.error(
-                "Failed to download audio after trying multiple methods. This could be due to:"
-            )
-            st.markdown(
-                """
-            - **YouTube's enhanced anti-bot measures** (most common cause)
-            - Video is age-restricted or region-blocked
-            - Video has download restrictions
-            - Your hosting platform's IP is blocked by YouTube
-            - Network connectivity issues
-            
-            **Potential solutions:**
-            - Try a different video to test if the issue is video-specific
-            - Wait 30-60 minutes and try again (temporary IP blocking)
-            - Use a VPN if testing locally
-            - Consider using YouTube's official API for transcripts (limited availability)
-            """
-            )
+        # Try auto-captions first if selected or as fallback
+        if processing_method.startswith("🚀") or True:  # Always try captions first
+            st.write("🔍 Checking for auto-generated captions...")
 
-            # Offer alternative: YouTube API transcript extraction
-            st.info(
-                "💡 **Alternative:** Some videos have auto-generated captions that can be extracted without downloading audio."
-            )
-            if st.button("Try YouTube Transcript API (if available)"):
-                try:
-                    # This would require youtube-transcript-api package
-                    st.warning(
-                        "This feature requires the youtube-transcript-api package. Add it to requirements.txt to enable this fallback."
-                    )
-                except:
-                    pass
-            log_usage(url, selected_type, status="download_failed")
-            st.stop()
+            transcript_result, error = get_youtube_transcript(url)
 
-        # Find the actual downloaded file (yt-dlp adds extension)
-        downloaded_files = [
-            f for f in os.listdir(".") if f.startswith(f"downloaded_{uid}")
-        ]
-        if not downloaded_files:
-            # Fallback: look for files with the UUID
-            downloaded_files = [
-                f
-                for f in os.listdir(".")
-                if uuid.uuid4().hex in f and f.startswith("downloaded_")
-            ]
-
-        if not downloaded_files:
-            st.error("Could not find downloaded audio file")
-            st.stop()
-
-        actual_audio_file = downloaded_files[0]
-        st.success("Audio downloaded successfully.")
-
-        st.write("Compressing audio for transcription...")
-        compressed_filename = f"compressed_{uuid.uuid4().hex}.mp3"
-
-        if not compress_audio(actual_audio_file, compressed_filename):
-            st.error("Failed to compress audio. Trying to use original file...")
-            compressed_filename = actual_audio_file
-
-        # Transcription
-        st.write("Transcribing...")
-        try:
-            with open(compressed_filename, "rb") as f:
-                transcript = client.audio.transcriptions.create(
-                    model="whisper-1", file=f, response_format="verbose_json"
+            if transcript_result:
+                st.success(
+                    "✅ Found auto-generated captions! Using YouTube Transcript API."
                 )
-            transcript_text = " ".join([seg.text for seg in transcript.segments])
-            segments = transcript.segments
+                transcript_text = transcript_result["text"]
+                # Convert transcript API segments to Whisper-like format
+                segments = []
+                for seg in transcript_result["segments"]:
+                    segments.append(
+                        type(
+                            "obj",
+                            (object,),
+                            {"start": seg["start"], "text": seg["text"]},
+                        )
+                    )
+                method_used = "transcript_api"
+                log_usage(url, selected_type, status="success", method="transcript_api")
+            else:
+                st.info(f"Auto-captions not available: {error}")
+                if processing_method.startswith("🚀"):
+                    st.write("📥 Falling back to audio download method...")
 
-            # Cache it
-            st.session_state["transcript_text"] = transcript_text
-            st.session_state["transcript_segments"] = segments
-            st.session_state["transcript_url"] = uid
+        # If auto-captions failed or audio method selected, try audio download
+        if not transcript_text:
+            st.write("Downloading audio...")
 
-            st.success("Transcription complete.")
-            log_usage(url, selected_type, status="success")
+            audio_filename = f"downloaded_{uuid.uuid4().hex}.%(ext)s"
 
-            # Clean up temporary files
-            try:
-                if os.path.exists(actual_audio_file):
-                    os.remove(actual_audio_file)
-                if (
-                    os.path.exists(compressed_filename)
-                    and compressed_filename != actual_audio_file
-                ):
-                    os.remove(compressed_filename)
-            except Exception as e:
-                print(f"Cleanup error: {e}")
+            # Try to download audio
+            if not download_audio(url, audio_filename):
+                st.error(
+                    "❌ **Audio download failed.** This is likely due to YouTube's anti-bot measures blocking your hosting platform."
+                )
 
-        except Exception as e:
-            st.error(f"Error during transcription: {e}")
-            log_usage(url, selected_type, status="transcription_failed")
+                if not processing_method.startswith("🚀"):
+                    st.write("🔄 Trying auto-captions as backup...")
+                    transcript_result, error = get_youtube_transcript(url)
 
-            # Clean up files on error
-            try:
-                if os.path.exists(actual_audio_file):
-                    os.remove(actual_audio_file)
-                if (
-                    os.path.exists(compressed_filename)
-                    and compressed_filename != actual_audio_file
-                ):
-                    os.remove(compressed_filename)
-            except:
-                pass
-            st.stop()
+                    if transcript_result:
+                        st.success("✅ Found auto-generated captions as backup!")
+                        transcript_text = transcript_result["text"]
+                        segments = []
+                        for seg in transcript_result["segments"]:
+                            segments.append(
+                                type(
+                                    "obj",
+                                    (object,),
+                                    {"start": seg["start"], "text": seg["text"]},
+                                )
+                            )
+                        method_used = "transcript_api_fallback"
+                        log_usage(
+                            url,
+                            selected_type,
+                            status="success",
+                            method="transcript_api_fallback",
+                        )
+                    else:
+                        st.error(f"❌ Auto-captions also failed: {error}")
+                        st.markdown(
+                            """
+                        **Both methods failed. This could be due to:**
+                        - Video has no auto-generated captions
+                        - Video is private, age-restricted, or region-blocked  
+                        - Your hosting platform's IP is blocked by YouTube
+                        - Video has download restrictions
+                        
+                        **Try:**
+                        - A different, more popular video that likely has captions
+                        - Waiting 30-60 minutes and trying again
+                        - Using the tool locally if you're a developer
+                        """
+                        )
+                        log_usage(url, selected_type, status="both_methods_failed")
+                        st.stop()
+                else:
+                    log_usage(url, selected_type, status="download_failed")
+                    st.stop()
+
+            # If audio download succeeded, continue with transcription
+            if not transcript_text:
+                # Find the actual downloaded file
+                downloaded_files = [
+                    f
+                    for f in os.listdir(".")
+                    if f.startswith(f"downloaded_{uid}") or uuid.uuid4().hex in f
+                ]
+                if not downloaded_files:
+                    st.error("Could not find downloaded audio file")
+                    st.stop()
+
+                actual_audio_file = downloaded_files[0]
+                st.success("Audio downloaded successfully.")
+
+                st.write("Compressing audio for transcription...")
+                compressed_filename = f"compressed_{uuid.uuid4().hex}.mp3"
+
+                if not compress_audio(actual_audio_file, compressed_filename):
+                    st.error("Failed to compress audio. Trying to use original file...")
+                    compressed_filename = actual_audio_file
+
+                # Transcription
+                st.write("Transcribing with Whisper...")
+                try:
+                    with open(compressed_filename, "rb") as f:
+                        transcript = client.audio.transcriptions.create(
+                            model="whisper-1", file=f, response_format="verbose_json"
+                        )
+                    transcript_text = " ".join(
+                        [seg.text for seg in transcript.segments]
+                    )
+                    segments = transcript.segments
+                    method_used = "whisper"
+
+                    st.success("Transcription complete.")
+                    log_usage(url, selected_type, status="success", method="whisper")
+
+                    # Clean up temporary files
+                    try:
+                        if os.path.exists(actual_audio_file):
+                            os.remove(actual_audio_file)
+                        if (
+                            os.path.exists(compressed_filename)
+                            and compressed_filename != actual_audio_file
+                        ):
+                            os.remove(compressed_filename)
+                    except Exception as e:
+                        print(f"Cleanup error: {e}")
+
+                except Exception as e:
+                    st.error(f"Error during transcription: {e}")
+                    log_usage(
+                        url,
+                        selected_type,
+                        status="transcription_failed",
+                        method="whisper",
+                    )
+
+                    # Clean up files on error
+                    try:
+                        if "actual_audio_file" in locals() and os.path.exists(
+                            actual_audio_file
+                        ):
+                            os.remove(actual_audio_file)
+                        if (
+                            "compressed_filename" in locals()
+                            and os.path.exists(compressed_filename)
+                            and compressed_filename != actual_audio_file
+                        ):
+                            os.remove(compressed_filename)
+                    except:
+                        pass
+                    st.stop()
+
+        # Cache the results
+        st.session_state["transcript_text"] = transcript_text
+        st.session_state["transcript_segments"] = segments
+        st.session_state["transcript_url"] = uid
+        st.session_state["method_used"] = method_used
 
     estimated_tokens = len(tokenizer.encode(transcript_text))
-    st.info(f"Transcript token count (est.): {estimated_tokens} tokens")
+    st.info(
+        f"Transcript token count (est.): {estimated_tokens} tokens | Method: {st.session_state.get('method_used', 'unknown')}"
+    )
 
     summary_prompt_templates = {
         "basic": "Summarize the following transcript in 5–7 clear sentences.\n\n{transcript}",
@@ -489,7 +564,7 @@ if submit_button and url:
     chunk_summaries = []
     max_tokens = 8192
 
-    if estimated_tokens + 900 > max_tokens or summary_scope.startswith("🐢"):
+    if estimated_tokens + 900 > max_tokens:
         st.warning("Transcript is long — using chunking.")
         chunks = chunk_transcript(transcript_text)
         for i, chunk in enumerate(chunks):
