@@ -2,8 +2,8 @@ streamlit
 openai
 requests
 python-dotenv
-yt-dlp>=2025.6.9
+yt-dlp>=2024.12.13
 pydub
 whisper
 transformers
-requests
+youtube-transcript-api
